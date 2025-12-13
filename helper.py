@@ -29,6 +29,8 @@ frozen_elapsed = 0
 finished = False
 early = False
 
+ui_running = True
+
 # def on_key_press(key):
 #     global paused, pause_start_time, total_pause_duration
 #     try:
@@ -47,7 +49,7 @@ early = False
 def slot_machine_animation(win):
     symbols = ["🍒", "🍋", "⭐", "💎", "7"]
 
-    slot_root = tk.Tk()
+    slot_root = tk.Toplevel()
     slot_root.title("Rolling...")
     slot_root.geometry("300x180")
     slot_root.attributes("-topmost", True)
@@ -74,9 +76,9 @@ def slot_machine_animation(win):
             # symbols
             if win:
                 s = random.choice(symbols)
-                final = [s, s, s]   # guaranteed match
+                final = [s, s, s] 
             else:
-                final = random.sample(symbols, 3)  # guaranteed non-match
+                final = random.sample(symbols, 3) 
 
             for r, s in zip(reels, final):
                 r.config(text=s)
@@ -323,7 +325,10 @@ def main():
 
         
         def update_ui():
-            global last_afk_penalty, odds, finished
+            global last_afk_penalty, odds, finished, ui_running
+
+            if not ui_running:
+                return
 
             if paused:
                 elapsed = frozen_elapsed
@@ -349,7 +354,8 @@ def main():
             if elapsed >= goal_time:
                 print("\nGoal complete!")
                 finished = True
-                root.destroy()
+                ui_running = False
+                root.quit()
                 return
 
             root.after(100, update_ui)
@@ -359,41 +365,41 @@ def main():
         root.mainloop()
 
 
-        while True:
-            try:
-                elapsed = (time.time() - start_time) - total_pause_duration
-                remaining = max(0, goal_time - elapsed)
+        # while True:
+        #     try:
+        #         elapsed = (time.time() - start_time) - total_pause_duration
+        #         remaining = max(0, goal_time - elapsed)
 
-                afk_elapsed = frozen_afk if paused else afk_time()
+        #         afk_elapsed = frozen_afk if paused else afk_time()
 
-                remaining_td = timedelta(seconds=remaining)
-                remaining_str = str(remaining_td).split(".")[0]
-                status_label.configure(
-                    text=f"AFK: {afk_elapsed:6.1f}s   |   Odds: {100 * odds:.0f}%   |   Remaining: {remaining_str}s"
-                )
-                root.update_idletasks()
+        #         remaining_td = timedelta(seconds=remaining)
+        #         remaining_str = str(remaining_td).split(".")[0]
+        #         status_label.configure(
+        #             text=f"AFK: {afk_elapsed:6.1f}s   |   Odds: {100 * odds:.0f}%   |   Remaining: {remaining_str}s"
+        #         )
+        #         root.update_idletasks()
 
-                now = time.time()
+        #         now = time.time()
 
-                if now - last_afk_penalty >= 300:
-                    if afk_elapsed >= 300:
-                        odds -= 0.01
-                        odds = clamp(odds)
-                    last_afk_penalty = now
+        #         if now - last_afk_penalty >= 300:
+        #             if afk_elapsed >= 300:
+        #                 odds -= 0.01
+        #                 odds = clamp(odds)
+        #             last_afk_penalty = now
 
-                if elapsed >= goal_time:
-                    print("\nGoal complete!")
-                    finished = True
-                    break
+        #         if elapsed >= goal_time:
+        #             print("\nGoal complete!")
+        #             finished = True
+        #             break
 
-                time.sleep(0.1)
-            except KeyboardInterrupt:
-                early = True
-                break
-            except TclError:
-                if finished == False:
-                    early = True
-                break
+        #         time.sleep(0.1)
+        #     except KeyboardInterrupt:
+        #         early = True
+        #         break
+        #     except TclError:
+        #         if finished == False:
+        #             early = True
+        #         break
 
     finally:
         # listener.stop()
