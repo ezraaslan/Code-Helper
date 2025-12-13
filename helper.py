@@ -44,6 +44,54 @@ early = False
 #     except AttributeError:
 #         pass
 
+def slot_machine_animation(win):
+    symbols = ["🍒", "🍋", "⭐", "💎", "7"]
+
+    slot_root = tk.Tk()
+    slot_root.title("Rolling...")
+    slot_root.geometry("300x180")
+    slot_root.attributes("-topmost", True)
+
+    frame = tk.Frame(slot_root)
+    frame.pack(expand=True)
+
+    reels = []
+    for _ in range(3):
+        lbl = tk.Label(frame, text="❓", font=("Segoe UI Emoji", 40))
+        lbl.pack(side="left", padx=10)
+        reels.append(lbl)
+
+    result_label = tk.Label(slot_root, text="", font=("Segoe UI", 16))
+    result_label.pack(pady=10)
+
+    def spin(count=20):
+        for r in reels:
+            r.config(text=random.choice(symbols))
+
+        if count > 0:
+            slot_root.after(100, spin, count - 1)
+        else:
+            # symbols
+            if win:
+                s = random.choice(symbols)
+                final = [s, s, s]   # guaranteed match
+            else:
+                final = random.sample(symbols, 3)  # guaranteed non-match
+
+            for r, s in zip(reels, final):
+                r.config(text=s)
+
+            if win:
+                result_label.config(text="YOU WIN!", fg="green")
+            else:
+                result_label.config(text="YOU LOSE", fg="red")
+
+            slot_root.after(1500, slot_root.destroy)
+
+    spin()
+    slot_root.mainloop()
+
+
 def update_activity(_=None):
     global last_activity
     last_activity = time.time()
@@ -357,11 +405,16 @@ def main():
 
 
     roll = random.random()
-    if roll < odds:
+    win = roll < odds
+
+    slot_machine_animation(win)
+
+    if win:
         print("\nMoney doubled!")
         balance += wager * 2
     else:
         print("\nMoney lost.")
+
 
     print(f"Balance: ${balance:.2f}")
 
