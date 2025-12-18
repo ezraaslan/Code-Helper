@@ -212,11 +212,6 @@ def main():
     except:
         balance = 10
 
-
-    with open('balance.pkl', 'rb') as inf: 
-        in_data = pickle.load(inf) 
-        print(in_data) 
-
     while True:
         file_path = input("Enter the path of the file you will be working on: ").strip()
         if not file_path:
