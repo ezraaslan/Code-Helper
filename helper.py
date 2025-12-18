@@ -206,7 +206,16 @@ class FileUpdateHandler(FileSystemEventHandler):
 def main():
     global TARGET_FILE, last_line_count, last_afk_penalty, odds, last_content, last_activity, finished, early, paused
 
-    balance = 10
+    try:
+        with open("balance.pkl", "rb") as f:
+            balance = pickle.load(f)
+    except:
+        balance = 10
+
+
+    with open('balance.pkl', 'rb') as inf: 
+        in_data = pickle.load(inf) 
+        print(in_data) 
 
     while True:
         file_path = input("Enter the path of the file you will be working on: ").strip()
@@ -379,6 +388,8 @@ def main():
 
 
     print(f"Balance: ${balance:.2f}")
+    with open('balance.pkl', 'wb') as outf:
+            pickle.dump(balance, outf)
 
 if __name__ == "__main__":
     main()
