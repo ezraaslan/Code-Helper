@@ -32,7 +32,8 @@ early = False
 
 ui_running = True
 
-
+lines_added = 0
+errors = 0
 
 def slot_machine_animation(win):
     symbols = ["🍒", "🍋", "⭐", "💎", "7"]
@@ -180,10 +181,12 @@ class FileUpdateHandler(FileSystemEventHandler):
             odds += 0.01
         elif current_errors > old_errors:
             odds -= 0.01
+            errors += 1
 
         new_line_count = len(lines)
 
         if new_line_count > last_line_count:
+            lines_added += 1
             previous_normalized = set(l.strip() for l in old_lines if l.strip() != "")
 
             for i in range(last_line_count, new_line_count):
@@ -198,6 +201,7 @@ class FileUpdateHandler(FileSystemEventHandler):
                         odds += 0.01
                     else:
                         odds -= 0.01
+                        errors += 1
                     previous_normalized.add(stripped)
 
         last_line_count = new_line_count
@@ -383,6 +387,10 @@ def main():
     print(f"Balance: ${balance:.2f}")
     with open('balance.pkl', 'wb') as outf:
             pickle.dump(balance, outf)
+    
+    print("Session Summary:")
+    print(f"Lines Added: {lines_added}")
+    print(f"Errors Added: {errors}")
 
 if __name__ == "__main__":
     main()
