@@ -150,7 +150,7 @@ class FileUpdateHandler(FileSystemEventHandler):
         if paused:
             return
 
-        global current_errors, odds, last_line_count, last_content
+        global current_errors, odds, last_line_count, last_content, lines_added, errors
 
         if os.path.abspath(event.src_path) != TARGET_FILE:
             return
@@ -387,10 +387,22 @@ def main():
     print(f"Balance: ${balance:.2f}")
     with open('balance.pkl', 'wb') as outf:
             pickle.dump(balance, outf)
+
+    with open(TARGET_FILE, "r", encoding="utf-8") as f:
+        total_lines = len(f.readlines())
+
+    if total_lines > 0:
+        lines_percent = lines_added/total_lines
+    else:
+        lines_percent = 0.0
+    if lines_added > 0:
+        errors_percent = errors/lines_added
+    else:
+        errors_percent = 0.0
     
     print("Session Summary:")
-    print(f"Lines Added: {lines_added}")
-    print(f"Errors Added: {errors}")
+    print(f"Lines Added: {lines_added} ({lines_percent}% of the file)")
+    print(f"Errors Added: {errors} ({errors_percent}% of added lines)")
 
 if __name__ == "__main__":
     main()
