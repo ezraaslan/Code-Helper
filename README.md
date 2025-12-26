@@ -69,4 +69,4 @@ Download the latest release and run the program from the terminal (this only wor
 ### **OR**
 ```bash
 pip install -r requirements.txt
-python main.py
+python helper.py
